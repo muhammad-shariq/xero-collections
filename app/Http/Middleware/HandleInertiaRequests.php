@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Illuminate\Http\Request;
+use Inertia\Middleware;
+
+class HandleInertiaRequests extends Middleware
+{
+    /**
+     * The root template that is loaded on the first page visit.
+     *
+     * @var string
+     */
+    protected $rootView = 'app';
+
+    /**
+     * Determine the current asset version.
+     */
+    public function version(Request $request): string|null
+    {
+        return parent::version($request);
+    }
+
+    /**
+     * Define the props that are shared by default.
+     *
+     * @return array<string, mixed>
+     */
+    public function share(Request $request): array
+    {
+        return [
+            ...parent::share($request),
+            'auth' => [
+                'user' => $request->user(),
+                'roles' => $request->user() ? $request->user()->roles:null,
+                'is_admin_login' => $request->session()->has('is_admin_login')  ? true : false,
+                'admin_login_id' => $request->session()->has('admin_login_id') ? session('admin_login_id') : null
+            ],
+        ];
+    }
+}
